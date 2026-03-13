@@ -7,16 +7,12 @@ function LandingContent() {
   const searchParams = useSearchParams();
   const targetUrl = searchParams.get('url') || '#';
 
-  useEffect(() => {
-    if (targetUrl === '#') return;
-    
-    // Very simple 1-second timeout
-    const timer = setTimeout(() => {
-      window.location.replace(targetUrl);
+  // Fallback to meta refresh if JS fails, and raw script tag for immediate execution
+  const scriptContent = `
+    setTimeout(function() {
+      window.location.replace("${targetUrl}");
     }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [targetUrl]);
+  `;
 
   return (
     <div style={{
@@ -28,6 +24,12 @@ function LandingContent() {
       fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
       color: '#e0e0e0',
     }}>
+      {targetUrl !== '#' && (
+        <head>
+          <meta httpEquiv="refresh" content={`2;url=${targetUrl}`} />
+        </head>
+      )}
+      
       <div style={{
         display: 'flex',
         flexDirection: 'column',
