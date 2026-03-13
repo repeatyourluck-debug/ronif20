@@ -1,18 +1,11 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect, Suspense } from 'react';
+import { Suspense } from 'react';
 
 function LandingContent() {
   const searchParams = useSearchParams();
   const targetUrl = searchParams.get('url') || '#';
-
-  // Fallback to meta refresh if JS fails, and raw script tag for immediate execution
-  const scriptContent = `
-    setTimeout(function() {
-      window.location.replace("${targetUrl}");
-    }, 1000);
-  `;
 
   return (
     <div style={{
@@ -24,10 +17,18 @@ function LandingContent() {
       fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
       color: '#e0e0e0',
     }}>
+      {/* 
+        This is the magic fix. We inject the script DIRECTLY into the HTML. 
+        It runs as soon as the browser parses it, ignoring React completely.
+      */}
       {targetUrl !== '#' && (
-        <head>
-          <meta httpEquiv="refresh" content={`2;url=${targetUrl}`} />
-        </head>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            setTimeout(function() {
+              window.location.href = "${targetUrl}";
+            }, 1000);
+          `
+        }} />
       )}
       
       <div style={{
@@ -98,3 +99,4 @@ export default function LandingPage() {
     </Suspense>
   );
 }
+
