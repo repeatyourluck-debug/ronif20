@@ -11,20 +11,13 @@ function LandingContent() {
   useEffect(() => {
     if (targetUrl === '#') return;
 
-    // Timeout based approach is more reliable in React 18 StrictMode
-    const timeout = setTimeout(() => {
-      window.location.assign(targetUrl);
-    }, 3000);
-
-    const interval = setInterval(() => {
-      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-
-    return () => {
-      clearTimeout(timeout);
-      clearInterval(interval);
-    };
-  }, [targetUrl]);
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown((c: number) => c - 1), 1000);
+      return () => clearTimeout(timer);
+    } else {
+      window.location.href = targetUrl;
+    }
+  }, [countdown, targetUrl]);
 
   return (
     <div style={{
